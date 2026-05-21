@@ -1,0 +1,414 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+
+  <world name="camera_world">
+
+    <!-- 物理引擎 -->
+    <physics type="ode">
+
+      <max_step_size>0.001</max_step_size>
+
+      <real_time_factor>1.0</real_time_factor>
+
+    </physics>
+
+    <!-- Gazebo系统插件 -->
+    <plugin
+      filename="gz-sim-physics-system"
+      name="gz::sim::systems::Physics">
+    </plugin>
+
+    <plugin
+      filename="gz-sim-user-commands-system"
+      name="gz::sim::systems::UserCommands">
+    </plugin>
+
+    <plugin
+      filename="gz-sim-scene-broadcaster-system"
+      name="gz::sim::systems::SceneBroadcaster">
+    </plugin>
+
+    <!-- 关键：传感器系统 -->
+    <plugin
+      filename="gz-sim-sensors-system"
+      name="gz::sim::systems::Sensors">
+
+      <render_engine>ogre2</render_engine>
+
+    </plugin>
+
+    <!-- 光照 -->
+    <light type="directional" name="sun">
+
+      <cast_shadows>true</cast_shadows>
+
+      <pose>0 0 10 0 0 0</pose>
+
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+
+      <specular>0.2 0.2 0.2 1</specular>
+
+      <direction>-0.5 0.1 -0.9</direction>
+
+    </light>
+
+    <!-- 地板 -->
+    <model name="ground_plane">
+
+      <static>true</static>
+
+      <link name="link">
+
+        <!-- 碰撞 -->
+        <collision name="collision">
+
+          <geometry>
+
+            <plane>
+
+              <normal>0 0 1</normal>
+
+              <size>100 100</size>
+
+            </plane>
+
+          </geometry>
+
+        </collision>
+
+        <!-- 可视化 -->
+        <visual name="visual">
+
+          <geometry>
+
+            <plane>
+
+              <normal>0 0 1</normal>
+
+              <size>100 100</size>
+
+            </plane>
+
+          </geometry>
+
+          <material>
+
+            <ambient>0.8 0.8 0.8 1</ambient>
+
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+
+            <specular>0.1 0.1 0.1 1</specular>
+
+          </material>
+
+        </visual>
+
+      </link>
+
+    </model>
+
+    <!-- 工作桌 -->
+    <model name="table">
+
+      <static>true</static>
+
+      <pose>0 0 0 0 0 0</pose>
+
+      <!-- 桌面 -->
+      <link name="table_top">
+
+        <pose>0 0 0.8 0 0 0</pose>
+
+        <collision name="collision">
+
+          <geometry>
+
+            <box>
+
+              <size>2.0 1.2 0.05</size>
+
+            </box>
+
+          </geometry>
+
+        </collision>
+
+        <visual name="visual">
+
+          <geometry>
+
+            <box>
+
+              <size>2.0 1.2 0.05</size>
+
+            </box>
+
+          </geometry>
+
+          <material>
+
+            <ambient>0.75 0.55 0.35 1</ambient>
+
+            <diffuse>0.75 0.55 0.35 1</diffuse>
+
+          </material>
+
+        </visual>
+
+      </link>
+
+      <!-- 左前腿 -->
+      <link name="leg_1">
+
+        <pose>0.9 0.5 0.4 0 0 0</pose>
+
+        <collision name="collision">
+
+          <geometry>
+
+            <box>
+
+              <size>0.05 0.05 0.8</size>
+
+            </box>
+
+          </geometry>
+
+        </collision>
+
+        <visual name="visual">
+
+          <geometry>
+
+            <box>
+
+              <size>0.05 0.05 0.8</size>
+
+            </box>
+
+          </geometry>
+
+          <material>
+
+            <ambient>0.3 0.3 0.3 1</ambient>
+
+            <diffuse>0.3 0.3 0.3 1</diffuse>
+
+          </material>
+
+        </visual>
+
+      </link>
+
+      <!-- 右前腿 -->
+      <link name="leg_2">
+
+        <pose>0.9 -0.5 0.4 0 0 0</pose>
+
+        <collision name="collision">
+
+          <geometry>
+
+            <box>
+
+              <size>0.05 0.05 0.8</size>
+
+            </box>
+
+          </geometry>
+
+        </collision>
+
+        <visual name="visual">
+
+          <geometry>
+
+            <box>
+
+              <size>0.05 0.05 0.8</size>
+
+            </box>
+
+          </geometry>
+
+          <material>
+
+            <ambient>0.3 0.3 0.3 1</ambient>
+
+            <diffuse>0.3 0.3 0.3 1</diffuse>
+
+          </material>
+
+        </visual>
+
+      </link>
+
+      <!-- 左后腿 -->
+      <link name="leg_3">
+
+        <pose>-0.9 0.5 0.4 0 0 0</pose>
+
+        <collision name="collision">
+
+          <geometry>
+
+            <box>
+
+              <size>0.05 0.05 0.8</size>
+
+            </box>
+
+          </geometry>
+
+        </collision>
+
+        <visual name="visual">
+
+          <geometry>
+
+            <box>
+
+              <size>0.05 0.05 0.8</size>
+
+            </box>
+
+          </geometry>
+
+          <material>
+
+            <ambient>0.3 0.3 0.3 1</ambient>
+
+            <diffuse>0.3 0.3 0.3 1</diffuse>
+
+          </material>
+
+        </visual>
+
+      </link>
+
+      <!-- 右后腿 -->
+      <link name="leg_4">
+
+        <pose>-0.9 -0.5 0.4 0 0 0</pose>
+
+        <collision name="collision">
+
+          <geometry>
+
+            <box>
+
+              <size>0.05 0.05 0.8</size>
+
+            </box>
+
+          </geometry>
+
+        </collision>
+
+        <visual name="visual">
+
+          <geometry>
+
+            <box>
+
+              <size>0.05 0.05 0.8</size>
+
+            </box>
+
+          </geometry>
+
+          <material>
+
+            <ambient>0.3 0.3 0.3 1</ambient>
+
+            <diffuse>0.3 0.3 0.3 1</diffuse>
+
+          </material>
+
+        </visual>
+
+      </link>
+
+    </model>
+
+    <!-- 顶视摄像头 -->
+    <model name="top_camera">
+
+      <static>true</static>
+
+      <!-- 摄像头位于桌子正上方 -->
+      <pose>0 0 2.5 0 1.5707 1.5707</pose>
+
+      <link name="camera_link">
+
+        <!-- 摄像头可视化 -->
+        <visual name="camera_visual">
+
+          <geometry>
+
+            <box>
+
+              <size>0.1 0.1 0.1</size>
+
+            </box>
+
+          </geometry>
+
+          <material>
+
+            <ambient>0 0 1 1</ambient>
+
+            <diffuse>0 0 1 1</diffuse>
+
+          </material>
+
+        </visual>
+
+        <!-- Camera Sensor -->
+        <sensor
+          name="camera_sensor"
+          type="camera">
+
+          <always_on>true</always_on>
+
+          <update_rate>30</update_rate>
+
+          <visualize>true</visualize>
+
+          <topic>/top_camera/image</topic>
+
+          <camera name="camera">
+
+            <pose>0 0 0 0 0 0</pose>
+
+            <horizontal_fov>1.047</horizontal_fov>
+
+            <image>
+
+              <width>640</width>
+
+              <height>480</height>
+
+              <format>R8G8B8</format>
+
+            </image>
+
+            <clip>
+
+              <near>0.1</near>
+
+              <far>100</far>
+
+            </clip>
+
+          </camera>
+
+        </sensor>
+
+      </link>
+
+    </model>
+
+  </world>
+
+</sdf>
