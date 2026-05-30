@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
-"""OpenCV red-object detection prototype (arm-only moves)."""
+"""Vision-guided pick and place using MoveIt2."""
 
-import time
 import cv2
 import numpy as np
 import rclpy
 from cv_bridge import CvBridge
-from rclpy.node import Node
 from sensor_msgs.msg import Image
-from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 from ur5e_gazebo_demo.frames import pixel_to_base
+from ur5e_gazebo_demo.pick_and_place_moveit import PickAndPlaceMoveIt
 
 
-class VisionPick(Node):
+class VisionPickMoveIt(PickAndPlaceMoveIt):
 
     def __init__(self):
-        super().__init__('vision_pick')
+        super().__init__()
+        self.declare_parameter('use_vision', True)
         self.declare_parameter('vision_image_topic', '/top_camera/image')
         self.declare_parameter('vision_image_center_x', 320)
         self.declare_parameter('vision_image_center_y', 240)
@@ -30,34 +29,27 @@ class VisionPick(Node):
         self._image = None
         topic = self.get_parameter('vision_image_topic').value
         self.create_subscription(Image, topic, self._image_callback, 10)
-        self._arm_pub = self.create_publisher(JointTrajectory, '/arm_controller/joint_trajectory', 10)
+        self.get_logger().info(f'VisionPickMoveIt listening on {topic}')
 
     def _image_callback(self, msg):
         self._image = self._bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-
-    def move_arm(self, positions, sec=3):
-        traj = JointTrajectory()
-        traj.joint_names = [
-            'shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
-            'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint',
-        ]
-        point = JointTrajectoryPoint()
-        point.positions = positions
-        point.time_from_start.sec = sec
-        traj.points.append(point)
-        self._arm_pub.publish(traj)
-        time.sleep(sec + 1)
 
     def detect_red_object(self):
         self.get_logger().info('Waiting for camera image...')
         while self._image is None and rclpy.ok():
             rclpy.spin_once(self, timeout_sec=0.1)
+
         if self._image is None:
+            self.get_logger().error('No camera image received')
             return None
 
         hsv = cv2.cvtColor(self._image.copy(), cv2.COLOR_BGR2HSV)
-        mask = cv2.inRange(hsv, np.array([0, 120, 70]), np.array([10, 255, 255]))
-        mask += cv2.inRange(hsv, np.array([170, 120, 70]), np.array([180, 255, 255]))
+        lower1 = np.array([0, 120, 70])
+        upper1 = np.array([10, 255, 255])
+        lower2 = np.array([170, 120, 70])
+        upper2 = np.array([180, 255, 255])
+        mask = cv2.inRange(hsv, lower1, upper1) + cv2.inRange(hsv, lower2, upper2)
+
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         if not contours:
             self.get_logger().error('No red object detected')
@@ -67,13 +59,16 @@ class VisionPick(Node):
         x, y, w, h = cv2.boundingRect(contour)
         cx = x + w // 2
         cy = y + h // 2
-        self.get_logger().info(f'Object pixel: ({cx}, {cy})')
+        self.get_logger().info(f'Detected pixel centroid: ({cx}, {cy})')
         return cx, cy
 
-    def run(self):
+    def resolve_pick_target(self):
+        if not self.get_parameter('use_vision').value:
+            return self.get_parameter('box_x').value, self.get_parameter('box_y').value
+
         detection = self.detect_red_object()
         if detection is None:
-            return
+            return None
 
         cx, cy = detection
         box_x, box_y = pixel_to_base(
@@ -85,16 +80,23 @@ class VisionPick(Node):
             self.get_parameter('vision_meters_per_pixel_x').value,
             self.get_parameter('vision_meters_per_pixel_y').value,
             self.get_parameter('vision_table_world_z').value,
+            self.get_parameter('robot_mount_z').value,
         )
-        self.get_logger().info(f'Base link target: ({box_x:.3f}, {box_y:.3f})')
-        self.get_logger().info('Use vision_pick_moveit for full pick-and-place with MoveIt')
+        self.get_logger().info(f'Vision pick target base_link: ({box_x:.3f}, {box_y:.3f})')
+        return box_x, box_y
+
+    def run(self):
+        target = self.resolve_pick_target()
+        if target is None:
+            return
+        self.set_pick_target(*target)
+        super().run()
 
 
-def main(args=None):
-    rclpy.init(args=args)
-    node = VisionPick()
+def main():
+    rclpy.init()
+    node = VisionPickMoveIt()
     node.run()
-    node.destroy_node()
     rclpy.shutdown()
 
 

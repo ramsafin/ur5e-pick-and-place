@@ -1,0 +1,14 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: ur5e_moveit_config
+    relative_path: config/ur5e.urdf.xacro
+  SRDF:
+    relative_path: config/ur5e.srdf
+  CONFIG:
+    author_name: shuai
+    author_email: 18534797916@163.com
+  modified_urdf:
+    package: ur5e_moveit_config
+    relative_path: config/ur5e.urdf.xacro
+  modified_srdf:
+    relative_path: config/ur5e.srdf

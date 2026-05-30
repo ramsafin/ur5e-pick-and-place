@@ -38,6 +38,7 @@
         parent="tool0"
         sim_gazebo="false"
         use_fake_hardware="true"
+        include_ros2_control="false"
         com_port="">
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </xacro:robotiq_gripper>

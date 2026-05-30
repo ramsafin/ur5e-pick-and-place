@@ -3,6 +3,11 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"
        name="ur5e">
 
+  <xacro:arg name="initial_positions_file"
+             default="$(find ur5e_gazebo_demo)/config/home_positions.yaml"/>
+  <xacro:property name="initial_positions"
+                  value="${xacro.load_yaml('$(arg initial_positions_file)')['initial_positions']}"/>
+
   <!-- ===================================================== -->
   <!-- WORLD -->
   <!-- ===================================================== -->
@@ -16,9 +21,6 @@
   <!-- UR -->
   <xacro:include
       filename="$(find ur_description)/urdf/ur_macro.xacro"/>
-
-  <xacro:include
-      filename="$(find ur_description)/urdf/inc/ur_transmissions.xacro"/>
 
   <!-- ROBOTIQ -->
   <xacro:include
@@ -48,17 +50,8 @@
   </xacro:ur_robot>
 
   <!-- ===================================================== -->
-  <!-- UR TRANSMISSIONS -->
+  <!-- ROBOTIQ GRIPPER -->
   <!-- ===================================================== -->
-
-
-
-  <xacro:ur_arm_transmission
-      prefix=""
-      hw_interface="hardware_interface/PositionJointInterface"/>
-    <!-- ===================================================== -->
-    <!-- ROBOTIQ GRIPPER -->
-    <!-- ===================================================== -->
 
   <xacro:robotiq_gripper
       name="gripper"
@@ -87,37 +80,49 @@
 
     <joint name="shoulder_pan_joint">
       <command_interface name="position"/>
-      <state_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['shoulder_pan_joint']}</param>
+      </state_interface>
       <state_interface name="velocity"/>
     </joint>
 
     <joint name="shoulder_lift_joint">
       <command_interface name="position"/>
-      <state_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['shoulder_lift_joint']}</param>
+      </state_interface>
       <state_interface name="velocity"/>
     </joint>
 
     <joint name="elbow_joint">
       <command_interface name="position"/>
-      <state_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['elbow_joint']}</param>
+      </state_interface>
       <state_interface name="velocity"/>
     </joint>
 
     <joint name="wrist_1_joint">
       <command_interface name="position"/>
-      <state_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['wrist_1_joint']}</param>
+      </state_interface>
       <state_interface name="velocity"/>
     </joint>
 
     <joint name="wrist_2_joint">
       <command_interface name="position"/>
-      <state_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['wrist_2_joint']}</param>
+      </state_interface>
       <state_interface name="velocity"/>
     </joint>
 
     <joint name="wrist_3_joint">
       <command_interface name="position"/>
-      <state_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['wrist_3_joint']}</param>
+      </state_interface>
       <state_interface name="velocity"/>
     </joint>
 
@@ -125,7 +130,9 @@
 
     <joint name="robotiq_85_left_knuckle_joint">
       <command_interface name="position"/>
-      <state_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['robotiq_85_left_knuckle_joint']}</param>
+      </state_interface>
       <state_interface name="velocity"/>
     </joint>
 
@@ -141,6 +148,29 @@
     </joint>
 
   </ros2_control>
+
+  <!-- Gazebo Sim physics initial joint angles (home pose) -->
+  <gazebo reference="shoulder_pan_joint">
+    <initial_position>${initial_positions['shoulder_pan_joint']}</initial_position>
+  </gazebo>
+  <gazebo reference="shoulder_lift_joint">
+    <initial_position>${initial_positions['shoulder_lift_joint']}</initial_position>
+  </gazebo>
+  <gazebo reference="elbow_joint">
+    <initial_position>${initial_positions['elbow_joint']}</initial_position>
+  </gazebo>
+  <gazebo reference="wrist_1_joint">
+    <initial_position>${initial_positions['wrist_1_joint']}</initial_position>
+  </gazebo>
+  <gazebo reference="wrist_2_joint">
+    <initial_position>${initial_positions['wrist_2_joint']}</initial_position>
+  </gazebo>
+  <gazebo reference="wrist_3_joint">
+    <initial_position>${initial_positions['wrist_3_joint']}</initial_position>
+  </gazebo>
+  <gazebo reference="robotiq_85_left_knuckle_joint">
+    <initial_position>${initial_positions['robotiq_85_left_knuckle_joint']}</initial_position>
+  </gazebo>
 
   <!-- ===================================================== -->
   <!-- GAZEBO -->

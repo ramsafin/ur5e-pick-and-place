@@ -32,13 +32,6 @@
       <render_engine>ogre2</render_engine>
     </plugin>
 
-    <!-- VERY IMPORTANT -->
-    <!-- ROS2 CONTROL -->
-    <plugin
-      filename="libgz_ros2_control-system.so"
-      name="gz_ros2_control::GazeboSimROS2ControlPlugin">
-    </plugin>
-
     <!-- Sun -->
     <light type="directional" name="sun">
       <cast_shadows>true</cast_shadows>

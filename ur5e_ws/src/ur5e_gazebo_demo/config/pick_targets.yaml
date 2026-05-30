@@ -1,0 +1,25 @@
+/**:
+  ros__parameters:
+    tcp_link: robotiq_85_base_link
+    gripper_joint: robotiq_85_left_knuckle_joint
+    gripper_open: 0.0
+    gripper_close: 0.8
+    home_joints: [0.0, -1.5707, 0.0, 0.0, 0.0, 0.0]  # matches config/home_positions.yaml + SRDF "home"
+    box_x: 0.0
+    box_y: 0.75
+    box_grasp_z: 0.125
+    box_pre_z: 0.35
+    place_x: -0.30
+    place_y: 0.45
+    place_z: 0.125
+    place_pre_z: 0.35
+    table_z: 0.025
+    robot_mount_z: 0.80
+    vision_image_topic: /top_camera/image
+    vision_image_center_x: 320
+    vision_image_center_y: 240
+    vision_world_x_at_center: 0.75
+    vision_world_y_at_center: 0.0
+    vision_meters_per_pixel_x: 0.0015
+    vision_meters_per_pixel_y: 0.0015
+    vision_table_world_z: 0.925

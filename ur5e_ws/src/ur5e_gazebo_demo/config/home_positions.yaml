@@ -1,4 +1,4 @@
-# Default initial positions for ur5e (mock hardware + MoveIt). Matches SRDF "home".
+# Default manipulator pose at startup (matches ur5e.srdf group_state "home").
 initial_positions:
   shoulder_pan_joint: 0.0
   shoulder_lift_joint: -1.5707
