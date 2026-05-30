@@ -19,10 +19,10 @@ class VisionPickMoveIt(PickAndPlaceMoveIt):
         self.declare_parameter('vision_image_topic', '/top_camera/image')
         self.declare_parameter('vision_image_center_x', 320)
         self.declare_parameter('vision_image_center_y', 240)
-        self.declare_parameter('vision_world_x_at_center', 0.75)
+        self.declare_parameter('vision_world_x_at_center', 0.0)
         self.declare_parameter('vision_world_y_at_center', 0.0)
-        self.declare_parameter('vision_meters_per_pixel_x', 0.0015)
-        self.declare_parameter('vision_meters_per_pixel_y', 0.0015)
+        self.declare_parameter('vision_meters_per_pixel_x', 0.00283)
+        self.declare_parameter('vision_meters_per_pixel_y', 0.00283)
         self.declare_parameter('vision_table_world_z', 0.925)
 
         self._bridge = CvBridge()

@@ -49,6 +49,49 @@ assert_move_action() {
   fi
 }
 
+assert_camera_publishing() {
+  if timeout 15 ros2 topic echo /top_camera/image --once >/dev/null 2>&1; then
+    echo "Camera topic /top_camera/image is publishing."
+    return 0
+  fi
+  local deadline=$((SECONDS + 20))
+  while [ "${SECONDS}" -lt "${deadline}" ]; do
+    if timeout 8 ros2 topic hz /top_camera/image --window 3 2>&1 | grep -q 'average rate'; then
+      echo "Camera topic /top_camera/image is publishing."
+      return 0
+    fi
+    sleep 2
+  done
+  echo "ERROR: /top_camera/image not publishing."
+  ros2 topic list 2>&1 | grep top_camera || true
+  return 1
+}
+
+assert_vision_detection() {
+  local vision_log
+  vision_log="$(mktemp)"
+  if ! timeout 20 ros2 run ur5e_gazebo_demo vision_pick \
+    --ros-args -p use_sim_time:=true \
+    --params-file "${WS_ROOT}/src/ur5e_gazebo_demo/config/pick_targets.yaml" >"${vision_log}" 2>&1; then
+    echo "ERROR: vision_pick exited with failure."
+    tail -20 "${vision_log}" || true
+    return 1
+  fi
+  if ! grep -q 'Object pixel:' "${vision_log}"; then
+    echo "ERROR: vision_pick did not detect the red box."
+    tail -20 "${vision_log}" || true
+    return 1
+  fi
+  if ! grep -E 'Base link target: \(-?[0-9]+\.[0-9]+, 0\.7[0-9]+\)' "${vision_log}" >/dev/null; then
+    echo "ERROR: vision calibration target out of range (expected base_link y ~ 0.75)."
+    grep 'Base link target:' "${vision_log}" || true
+    return 1
+  fi
+  grep 'Object pixel:' "${vision_log}" || true
+  grep 'Base link target:' "${vision_log}" || true
+  echo "Vision detection smoke check passed."
+}
+
 smoke_mock() {
   echo "Starting MoveIt demo + spawn_controllers (mock hardware)..."
   ros2 launch ur5e_moveit_config demo.launch.py &
@@ -64,15 +107,28 @@ smoke_mock() {
   echo "Mock-hardware smoke test passed."
 }
 
+smoke_camera() {
+  echo "Starting headless Gazebo sim (camera + vision checks)..."
+  SIM_LOG="$(mktemp)"
+  timeout "${TIMEOUT}" ros2 launch ur5e_gazebo_demo ur5e_sim.launch.py headless:=true 2>&1 | tee "${SIM_LOG}" &
+  STACK_PID=$!
+  sleep 20
+  assert_camera_publishing
+  assert_vision_detection
+  echo "Camera smoke test passed."
+}
+
 smoke_gazebo() {
   echo "Starting Gazebo + MoveIt stack (headless server mode)..."
   SIM_LOG="$(mktemp)"
   timeout "${TIMEOUT}" ros2 launch ur5e_gazebo_demo pick_moveit.launch.py headless:=true 2>&1 | tee "${SIM_LOG}" &
   STACK_PID=$!
-  sleep 20
+  sleep 25
   wait_for_controllers
-  ros2 topic hz /clock --window 5 || true
+  timeout 10 ros2 topic hz /clock --window 5 2>/dev/null || true
   assert_move_action
+  assert_camera_publishing
+  assert_vision_detection
   if grep -q 'camera_world.*is not a model' "${SIM_LOG}"; then
     echo "ERROR: world-level gz_ros2_control plugin still present."
     exit 1
@@ -86,9 +142,11 @@ smoke_pick() {
   PICK_LOG="$(mktemp)"
   timeout "${TIMEOUT}" ros2 launch ur5e_gazebo_demo pick_moveit.launch.py headless:=true 2>&1 | tee "${SIM_LOG}" &
   STACK_PID=$!
-  sleep 20
+  sleep 25
   wait_for_controllers
   assert_move_action
+  assert_camera_publishing
+  assert_vision_detection
   if grep -q 'camera_world.*is not a model' "${SIM_LOG}"; then
     echo "ERROR: world-level gz_ros2_control plugin still present."
     exit 1
@@ -107,6 +165,9 @@ case "${MODE}" in
   mock)
     smoke_mock
     ;;
+  camera)
+    smoke_camera
+    ;;
   gazebo)
     smoke_gazebo
     ;;
@@ -114,7 +175,7 @@ case "${MODE}" in
     smoke_pick
     ;;
   *)
-    echo "Usage: $0 [mock|gazebo|pick]"
+    echo "Usage: $0 [mock|camera|gazebo|pick]"
     exit 2
     ;;
 esac

@@ -266,7 +266,8 @@ ur5e_ws/src/ur5e_gazebo_demo/config/home_positions.yaml
 | `box_x`, `box_y` | `0.0`, `0.75` | Pick target in `base_link` |
 | `place_x`, `place_y` | `-0.30`, `0.45` | Place target in `base_link` |
 | `gripper_close` | `0.8` | Closed gripper joint value |
-| `vision_meters_per_pixel_x/y` | `0.0015` | Pixel → world calibration |
+| `vision_world_x/y_at_center` | `0.0`, `0.0` | World XY at image center (640×480) |
+| `vision_meters_per_pixel_x/y` | `0.00283` | Pixel → world scale (tuned to red box at ~585 px) |
 
 With `--symlink-install`, YAML edits take effect after restarting launch files (no rebuild).
 
@@ -285,8 +286,9 @@ Optional local runtime smoke tests:
 
 ```bash
 bash <workspace>/src/ur5e_gazebo_demo/scripts/smoke_test_sim.sh mock
-bash <workspace>/src/ur5e_gazebo_demo/scripts/smoke_test_sim.sh gazebo
-bash <workspace>/src/ur5e_gazebo_demo/scripts/smoke_test_sim.sh pick
+bash <workspace>/src/ur5e_gazebo_demo/scripts/smoke_test_sim.sh camera   # /top_camera/image + vision_pick
+bash <workspace>/src/ur5e_gazebo_demo/scripts/smoke_test_sim.sh gazebo   # full stack + camera/vision checks
+bash <workspace>/src/ur5e_gazebo_demo/scripts/smoke_test_sim.sh pick       # camera/vision checks before pick-and-place
 ```
 
 Runtime checks with sim running:
