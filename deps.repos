@@ -1,0 +1,6 @@
+repositories:
+  robotiq_description:
+    type: git
+    url: https://github.com/PickNikRobotics/ros2_robotiq_gripper.git
+    version: main
+  # Use vendored copy under src/robotiq_description if offline; this file documents upstream.

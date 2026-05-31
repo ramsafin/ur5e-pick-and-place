@@ -1,0 +1,16 @@
+# Optional custom rosdep rules (pip packages).
+#
+# Primary install path for ikpy/opencv is requirements.txt:
+#   pip3 install -r requirements.txt
+#
+# To register these rules with rosdep (if your rosdep version supports it):
+#   export ROSDEP_CUSTOM_RULES_PATH="$(pwd)/rosdep"
+#   rosdep update && rosdep install --from-paths src --ignore-src -r -y
+#
+# Or skip ikpy via rosdep and use pip only:
+#   rosdep install --from-paths src --ignore-src -r -y
+#   pip3 install -r requirements.txt
+ikpy:
+  ubuntu:
+    pip:
+      packages: [ikpy]

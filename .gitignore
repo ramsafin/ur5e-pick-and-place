@@ -1,7 +1,14 @@
 # ROS 2 / colcon workspace
+build/
+install/
+log/
 ur5e_ws/build/
 ur5e_ws/install/
 ur5e_ws/log/
+
+# Generated URDF
+ur5e_full.urdf
+**/ur5e_full.urdf
 
 # Python
 __pycache__/

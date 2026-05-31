@@ -1,0 +1,22 @@
+cmake_minimum_required(VERSION 3.22)
+project(ur5e_moveit_config)
+
+find_package(ament_cmake REQUIRED)
+
+ament_package()
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/launch")
+  install(
+    DIRECTORY launch
+    DESTINATION share/${PROJECT_NAME}
+    PATTERN "setup_assistant.launch" EXCLUDE)
+endif()
+
+install(DIRECTORY config DESTINATION share/${PROJECT_NAME})
+
+# Shared ros2_control config lives in ur5e_description (used by spawn_controllers).
+install(
+  FILES ${CMAKE_CURRENT_SOURCE_DIR}/../ur5e_description/config/ros2_controllers.yaml
+  DESTINATION share/${PROJECT_NAME}/config
+)
+install(FILES .setup_assistant DESTINATION share/${PROJECT_NAME})

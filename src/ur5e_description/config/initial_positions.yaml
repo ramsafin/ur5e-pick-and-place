@@ -1,0 +1,9 @@
+# Default initial positions for UR5e (sim + mock). Matches MoveIt SRDF "home".
+initial_positions:
+  shoulder_pan_joint: 0.0
+  shoulder_lift_joint: -1.5707
+  elbow_joint: 0.0
+  wrist_1_joint: 0.0
+  wrist_2_joint: 0.0
+  wrist_3_joint: 0.0
+  robotiq_85_left_knuckle_joint: 0.0

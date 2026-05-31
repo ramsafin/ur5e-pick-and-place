@@ -1,0 +1,5 @@
+# Pip-only dependencies (not resolved from rosdistro alone).
+# Install after: rosdep install --from-paths src --ignore-src -r -y
+ikpy
+opencv-python
+pytest
